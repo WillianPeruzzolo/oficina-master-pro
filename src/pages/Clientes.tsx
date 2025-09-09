@@ -1,194 +1,272 @@
 import { useState } from "react";
-import { Plus, Search, Edit, Eye, Phone, Mail, Car } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const clientes = [
-  {
-    id: 1,
-    nome: "Maria Santos",
-    email: "maria.santos@email.com",
-    telefone: "(11) 99999-9999",
-    veiculos: 2,
-    ultimaVisita: "2024-01-05",
-    totalGasto: 1250.00,
-    status: "ativo"
-  },
-  {
-    id: 2,
-    nome: "João Oliveira",
-    email: "joao.oliveira@email.com",
-    telefone: "(11) 88888-8888",
-    veiculos: 1,
-    ultimaVisita: "2024-01-08",
-    totalGasto: 850.00,
-    status: "ativo"
-  },
-  {
-    id: 3,
-    nome: "Ana Silva",
-    email: "ana.silva@email.com",
-    telefone: "(11) 77777-7777",
-    veiculos: 1,
-    ultimaVisita: "2023-12-20",
-    totalGasto: 320.00,
-    status: "inativo"
-  },
-  {
-    id: 4,
-    nome: "Carlos Ferreira",
-    email: "carlos.ferreira@email.com",
-    telefone: "(11) 66666-6666",
-    veiculos: 3,
-    ultimaVisita: "2024-01-09",
-    totalGasto: 2100.00,
-    status: "vip"
-  }
-];
-
-const statusConfig = {
-  ativo: { label: "Ativo", color: "bg-workshop-success" },
-  inativo: { label: "Inativo", color: "bg-gray-500" },
-  vip: { label: "VIP", color: "bg-workshop-orange" }
-};
+import { Plus, Search, Edit, Trash2, Phone, Mail, MapPin } from "lucide-react";
+import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Clientes() {
+  const { data: clients, isLoading } = useClients();
+  const createClient = useCreateClient();
+  const updateClient = useUpdateClient();
+  const deleteClient = useDeleteClient();
+  
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<any>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    document: "",
+    notes: "",
+  });
 
-  const filteredClientes = clientes.filter(cliente =>
-    cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.telefone.includes(searchTerm)
-  );
+  const filteredClients = clients?.filter(client =>
+    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.phone?.includes(searchTerm)
+  ) || [];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (editingClient) {
+      await updateClient.mutateAsync({ id: editingClient.id, ...formData });
+    } else {
+      await createClient.mutateAsync(formData);
+    }
+    
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      document: "",
+      notes: "",
+    });
+    setEditingClient(null);
+  };
+
+  const handleEdit = (client: any) => {
+    setEditingClient(client);
+    setFormData({
+      name: client.name || "",
+      email: client.email || "",
+      phone: client.phone || "",
+      address: client.address || "",
+      document: client.document || "",
+      notes: client.notes || "",
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Tem certeza que deseja remover este cliente?")) {
+      await deleteClient.mutateAsync(id);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-6">Carregando clientes...</div>;
+  }
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Clientes</h1>
-          <p className="text-muted-foreground">Gerencie todos os seus clientes</p>
+          <p className="text-muted-foreground">
+            Gerencie os clientes da sua oficina
+          </p>
         </div>
-        <Button className="bg-gradient-primary shadow-workshop">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Cliente
-        </Button>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={resetForm} className="bg-gradient-primary shadow-workshop">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Cliente
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingClient ? "Editar Cliente" : "Novo Cliente"}
+              </DialogTitle>
+              <DialogDescription>
+                {editingClient 
+                  ? "Atualize as informações do cliente" 
+                  : "Adicione um novo cliente ao sistema"
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="document">CPF/CNPJ</Label>
+                  <Input
+                    id="document"
+                    value={formData.document}
+                    onChange={(e) => setFormData({ ...formData, document: e.target.value })}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="address">Endereço</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="notes">Observações</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createClient.isPending || updateClient.isPending}>
+                  {editingClient ? "Atualizar" : "Criar"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Search and Filters */}
+      
       <Card>
         <CardHeader>
-          <CardTitle>Buscar Clientes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="relative flex-1">
+          <div className="flex justify-between items-center">
+            <CardTitle>Lista de Clientes ({filteredClients.length})</CardTitle>
+            <div className="relative w-72">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por nome, email ou telefone..."
+                placeholder="Buscar clientes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">Filtros</Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-primary">{clientes.length}</p>
-            <p className="text-sm text-muted-foreground">Total de Clientes</p>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-workshop-success">
-              {clientes.filter(c => c.status === "ativo").length}
-            </p>
-            <p className="text-sm text-muted-foreground">Clientes Ativos</p>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-workshop-orange">
-              {clientes.filter(c => c.status === "vip").length}
-            </p>
-            <p className="text-sm text-muted-foreground">Clientes VIP</p>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">
-              R$ {clientes.reduce((sum, c) => sum + c.totalGasto, 0).toFixed(2)}
-            </p>
-            <p className="text-sm text-muted-foreground">Faturamento Total</p>
-          </div>
-        </Card>
-      </div>
-
-      {/* Clientes List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Clientes ({filteredClientes.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {filteredClientes.map((cliente) => (
+            {filteredClients.map((client) => (
               <div
-                key={cliente.id}
+                key={client.id}
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 bg-gradient-primary rounded-full flex items-center justify-center text-white font-semibold">
-                    {cliente.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-semibold">{client.name}</h3>
+                    {client.document && (
+                      <Badge variant="outline">{client.document}</Badge>
+                    )}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{cliente.nome}</h3>
-                      <Badge className={`${statusConfig[cliente.status as keyof typeof statusConfig].color} text-white`}>
-                        {statusConfig[cliente.status as keyof typeof statusConfig].label}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
+                    {client.email && (
                       <div className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        {cliente.email}
+                        {client.email}
                       </div>
+                    )}
+                    {client.phone && (
                       <div className="flex items-center gap-1">
                         <Phone className="h-3 w-3" />
-                        {cliente.telefone}
+                        {client.phone}
                       </div>
+                    )}
+                    {client.address && (
                       <div className="flex items-center gap-1">
-                        <Car className="h-3 w-3" />
-                        {cliente.veiculos} veículo{cliente.veiculos !== 1 ? 's' : ''}
+                        <MapPin className="h-3 w-3" />
+                        {client.address}
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
-                <div className="text-right space-y-1">
-                  <p className="font-semibold text-workshop-orange">
-                    R$ {cliente.totalGasto.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Última visita: {cliente.ultimaVisita}
-                  </p>
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                      <Eye className="h-3 w-3" />
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(client)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(client.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}
+            
+            {filteredClients.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                {clients?.length === 0 
+                  ? "Nenhum cliente cadastrado ainda. Clique em 'Novo Cliente' para começar."
+                  : "Nenhum cliente encontrado com os critérios de busca."
+                }
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
