@@ -22,6 +22,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -47,6 +48,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        workshop: {
+          steel: "hsl(var(--workshop-steel))",
+          "steel-light": "hsl(var(--workshop-steel-light))",
+          orange: "hsl(var(--workshop-orange))",
+          "orange-light": "hsl(var(--workshop-orange-light))",
+          success: "hsl(var(--workshop-success))",
+          warning: "hsl(var(--workshop-warning))",
+          danger: "hsl(var(--workshop-danger))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -57,6 +67,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-steel": "var(--gradient-steel)",
+        "gradient-orange": "var(--gradient-orange)",
+      },
+      boxShadow: {
+        "workshop": "var(--shadow-workshop)",
+        "workshop-lg": "var(--shadow-workshop-lg)",
       },
       borderRadius: {
         lg: "var(--radius)",
