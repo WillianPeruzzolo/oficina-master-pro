@@ -428,6 +428,51 @@ export type Database = {
           },
         ]
       }
+      workshop_settings: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          logo_url: string | null
+          phone: string | null
+          primary_color: string
+          secondary_color: string
+          theme: string
+          updated_at: string
+          whatsapp: string | null
+          workshop_name: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          primary_color?: string
+          secondary_color?: string
+          theme?: string
+          updated_at?: string
+          whatsapp?: string | null
+          workshop_name?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          primary_color?: string
+          secondary_color?: string
+          theme?: string
+          updated_at?: string
+          whatsapp?: string | null
+          workshop_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
