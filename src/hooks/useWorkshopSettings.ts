@@ -35,9 +35,9 @@ export function useWorkshopSettings() {
         .from('workshop_settings')
         .select('*')
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error loading settings:', error);
         return;
       }

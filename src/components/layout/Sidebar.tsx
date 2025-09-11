@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Car,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useWorkshopSettings } from "@/hooks/useWorkshopSettings";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -33,6 +34,7 @@ const navigation = [
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+  const { settings } = useWorkshopSettings();
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -54,7 +56,7 @@ export function Sidebar() {
               <Wrench className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">WorkshopPro</h1>
+              <h1 className="text-lg font-bold text-white">{settings.workshop_name || "WorkshopPro"}</h1>
               <p className="text-xs text-white/70">Gestão Completa</p>
             </div>
           </div>

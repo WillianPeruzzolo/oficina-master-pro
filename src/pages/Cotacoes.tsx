@@ -1,13 +1,24 @@
 import { useState } from "react";
-import { Plus, Search, FileText, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Search, FileText, Clock, CheckCircle, XCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Cotacoes() {
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
+
+  const handleExport = () => {
+    toast({
+      title: "Exportação iniciada",
+      description: "Relatório de cotações será baixado em breve."
+    });
+    // TODO: Implement actual export functionality
+    console.log("Exporting quotations report");
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -37,10 +48,16 @@ export default function Cotacoes() {
             Gerencie cotações de serviços e peças
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Cotação
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Exportar
+          </Button>
+          <Button className="bg-gradient-primary hover:opacity-90">
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Cotação
+          </Button>
+        </div>
       </div>
 
       {/* Search */}

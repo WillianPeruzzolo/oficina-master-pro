@@ -3,6 +3,7 @@ import { Save, Upload, Palette, Building, Phone, Mail, MapPin, Lock, Eye, EyeOff
 import { useWorkshopSettings } from "@/hooks/useWorkshopSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { createAdminUser } from "@/utils/adminSetup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,7 @@ export default function Configuracoes() {
     confirm: false
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
 
   // Update local settings when settings from hook change
   useEffect(() => {
@@ -89,6 +91,33 @@ export default function Configuracoes() {
       });
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  const handleCreateAdmin = async () => {
+    setIsCreatingAdmin(true);
+    try {
+      const result = await createAdminUser();
+      if (result.success) {
+        toast({
+          title: "Sucesso",
+          description: result.message
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: result.error,
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro inesperado ao criar usuário administrador.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingAdmin(false);
     }
   };
 
@@ -575,6 +604,28 @@ export default function Configuracoes() {
               <div className="text-xs text-muted-foreground">
                 <p>• A senha deve ter pelo menos 6 caracteres</p>
                 <p>• Use uma combinação de letras, números e símbolos</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Configuração Inicial</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 border rounded-lg bg-muted/50">
+                <h4 className="font-medium mb-2">Usuário Administrador</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Crie o usuário administrador padrão com email: admin@procar.com e senha: procar
+                </p>
+                <Button 
+                  onClick={handleCreateAdmin} 
+                  disabled={isCreatingAdmin}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {isCreatingAdmin ? "Criando..." : "Criar Usuário Admin"}
+                </Button>
               </div>
             </CardContent>
           </Card>

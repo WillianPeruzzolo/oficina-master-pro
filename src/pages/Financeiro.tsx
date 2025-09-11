@@ -1,9 +1,21 @@
-import { DollarSign, TrendingUp, TrendingDown, CreditCard } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, CreditCard, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Financeiro() {
+  const { toast } = useToast();
+
+  const handleExport = (type: string) => {
+    toast({
+      title: "Exportação iniciada",
+      description: `Relatório de ${type} será baixado em breve.`
+    });
+    // TODO: Implement actual export functionality
+    console.log(`Exporting ${type} report`);
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -14,10 +26,16 @@ export default function Financeiro() {
             Controle financeiro e fluxo de caixa
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
-          <DollarSign className="h-4 w-4 mr-2" />
-          Nova Transação
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => handleExport("financeiro")}>
+            <Download className="h-4 w-4 mr-2" />
+            Exportar
+          </Button>
+          <Button className="bg-gradient-primary hover:opacity-90">
+            <DollarSign className="h-4 w-4 mr-2" />
+            Nova Transação
+          </Button>
+        </div>
       </div>
 
       {/* Financial Overview */}
