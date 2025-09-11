@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export function UserMenu() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const getUserInitials = (email: string) => {
     return email.charAt(0).toUpperCase();
@@ -20,6 +22,10 @@ export function UserMenu() {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleSettings = () => {
+    navigate("/configuracoes");
   };
 
   return (
@@ -49,7 +55,7 @@ export function UserMenu() {
           <User className="mr-2 h-4 w-4" />
           <span>Perfil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSettings}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Configurações</span>
         </DropdownMenuItem>
