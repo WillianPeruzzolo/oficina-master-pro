@@ -3,8 +3,59 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { exportToExcel, exportToPDF, exportToCSV } from "@/utils/exportUtils";
+import { useToast } from "@/hooks/use-toast";
 export default function Relatorios() {
+  const { toast } = useToast();
+
+  // Data sources used in UI and export
+  const revenueByPeriod = [
+    { period: "Janeiro 2025", value: 25431, growth: 12 },
+    { period: "Dezembro 2024", value: 22687, growth: 8 },
+    { period: "Novembro 2024", value: 21012, growth: -2 },
+    { period: "Outubro 2024", value: 21450, growth: 15 },
+  ];
+
+  const revenueByCategory = [
+    { category: "Serviços de Motor", value: 8945, percentage: 35 },
+    { category: "Troca de Óleo", value: 6358, percentage: 25 },
+    { category: "Freios", value: 5086, percentage: 20 },
+    { category: "Suspensão", value: 3175, percentage: 12 },
+    { category: "Outros", value: 1867, percentage: 8 },
+  ];
+
+  const handleExport = (format: 'pdf' | 'excel' | 'csv') => {
+    const exportData = {
+      title: 'Receita por Período',
+      headers: ['Período', 'Valor', 'Crescimento'],
+      data: revenueByPeriod.map(item => [
+        item.period,
+        `R$ ${item.value.toLocaleString()}`,
+        `${item.growth > 0 ? '+' : ''}${item.growth}%`,
+      ]),
+      filename: `relatorio-financeiro_${new Date().toISOString().slice(0,10)}`,
+    };
+
+    try {
+      if (format === 'pdf') exportToPDF(exportData);
+      if (format === 'excel') exportToExcel(exportData);
+      if (format === 'csv') exportToCSV(exportData);
+      console.info('[Relatorios] Export concluída:', format, exportData.filename);
+      toast({
+        title: 'Exportação concluída',
+        description: `Arquivo ${format.toUpperCase()} gerado com sucesso.`,
+      });
+    } catch (err) {
+      console.error('[Relatorios] Falha na exportação:', err);
+      toast({
+        title: 'Falha na exportação',
+        description: 'Não foi possível gerar o arquivo. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -28,10 +79,19 @@ export default function Relatorios() {
               <SelectItem value="year">Este Ano</SelectItem>
             </SelectContent>
           </Select>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-gradient-primary hover:opacity-90">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => handleExport('pdf')}>Exportar como PDF</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExport('excel')}>Exportar como Excel (.xlsx)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExport('csv')}>Exportar como CSV</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -110,12 +170,7 @@ export default function Relatorios() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { period: "Janeiro 2025", value: 25431, growth: 12 },
-                    { period: "Dezembro 2024", value: 22687, growth: 8 },
-                    { period: "Novembro 2024", value: 21012, growth: -2 },
-                    { period: "Outubro 2024", value: 21450, growth: 15 }
-                  ].map((item, index) => (
+                  {revenueByPeriod.map((item, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <span className="font-medium">{item.period}</span>
                       <div className="text-right">
@@ -139,13 +194,7 @@ export default function Relatorios() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { category: "Serviços de Motor", value: 8945, percentage: 35 },
-                    { category: "Troca de Óleo", value: 6358, percentage: 25 },
-                    { category: "Freios", value: 5086, percentage: 20 },
-                    { category: "Suspensão", value: 3175, percentage: 12 },
-                    { category: "Outros", value: 1867, percentage: 8 }
-                  ].map((item, index) => (
+                  {revenueByCategory.map((item, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">{item.category}</span>
