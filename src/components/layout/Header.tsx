@@ -3,6 +3,7 @@ import { Bell, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserMenu } from "./UserMenu";
+import { NotificationDropdown } from "./NotificationDropdown";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Popover,

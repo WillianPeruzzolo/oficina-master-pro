@@ -14,6 +14,76 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_date: string
+          client_id: string | null
+          created_at: string
+          end_time: string
+          id: string
+          mechanic_id: string | null
+          notes: string | null
+          priority: string
+          service_description: string
+          start_time: string
+          status: string
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          appointment_date: string
+          client_id?: string | null
+          created_at?: string
+          end_time: string
+          id?: string
+          mechanic_id?: string | null
+          notes?: string | null
+          priority?: string
+          service_description: string
+          start_time: string
+          status?: string
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          client_id?: string | null
+          created_at?: string
+          end_time?: string
+          id?: string
+          mechanic_id?: string | null
+          notes?: string | null
+          priority?: string
+          service_description?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_mechanic_id_fkey"
+            columns: ["mechanic_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
@@ -87,6 +157,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_read: boolean
+          message: string
+          priority: string
+          related_entity_id: string | null
+          related_entity_type: string | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean
+          message: string
+          priority?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title: string
+          type?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          priority?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       parts: {
         Row: {
@@ -164,6 +276,72 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quotations: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          parts_description: string | null
+          quotation_number: string
+          service_description: string
+          status: string
+          supplier: string | null
+          total_amount: number
+          updated_at: string
+          valid_until: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          parts_description?: string | null
+          quotation_number: string
+          service_description: string
+          status?: string
+          supplier?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          parts_description?: string | null
+          quotation_number?: string
+          service_description?: string
+          status?: string
+          supplier?: string | null
+          total_amount?: number
+          updated_at?: string
+          valid_until?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_order_parts: {
         Row: {
@@ -483,6 +661,10 @@ export type Database = {
         Returns: undefined
       }
       generate_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_quotation_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
