@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ServiceOrderForm from "@/components/forms/ServiceOrderForm";
 
 const ordensServico = [
   {
@@ -104,10 +105,7 @@ export default function OrdemServico() {
           <h1 className="text-3xl font-bold text-foreground">Ordens de Serviço</h1>
           <p className="text-muted-foreground">Gerencie todas as OS da oficina</p>
         </div>
-        <Button className="bg-gradient-primary shadow-workshop">
-          <Plus className="h-4 w-4 mr-2" />
-          Nova OS
-        </Button>
+        <ServiceOrderForm />
       </div>
 
       {/* Stats Cards */}

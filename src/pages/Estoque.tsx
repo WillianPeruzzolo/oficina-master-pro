@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PartForm from "@/components/forms/PartForm";
 
 export default function Estoque() {
   const [search, setSearch] = useState("");
@@ -18,10 +19,7 @@ export default function Estoque() {
             Gerencie o estoque de peças e materiais
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Peça
-        </Button>
+        <PartForm />
       </div>
 
       {/* Search and Filters */}

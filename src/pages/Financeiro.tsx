@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import TransactionForm from "@/components/forms/TransactionForm";
 
 export default function Financeiro() {
   const { toast } = useToast();
@@ -31,10 +32,7 @@ export default function Financeiro() {
             <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            <DollarSign className="h-4 w-4 mr-2" />
-            Nova Transação
-          </Button>
+          <TransactionForm />
         </div>
       </div>
 
