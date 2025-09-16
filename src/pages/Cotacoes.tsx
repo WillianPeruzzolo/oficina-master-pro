@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import QuotationForm from "@/components/forms/QuotationForm";
 
 export default function Cotacoes() {
   const [search, setSearch] = useState("");
@@ -53,10 +54,7 @@ export default function Cotacoes() {
             <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            <Plus className="h-4 w-4 mr-2" />
-            Nova Cotação
-          </Button>
+          <QuotationForm />
         </div>
       </div>
 

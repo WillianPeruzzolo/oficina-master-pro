@@ -121,6 +121,54 @@ export default function Configuracoes() {
     }
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "O arquivo deve ter no máximo 2MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('workshop-logos')
+        .upload(fileName, file);
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('workshop-logos')
+        .getPublicUrl(fileName);
+
+      setLocalSettings({
+        ...localSettings,
+        logo_url: publicUrl
+      });
+
+      toast({
+        title: "Sucesso",
+        description: "Logo enviada com sucesso!"
+      });
+
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível fazer upload da logo.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const colorPresets = [
     { name: "Azul Industrial", primary: "#2563eb", secondary: "#f97316" },
     { name: "Verde Moderno", primary: "#16a34a", secondary: "#eab308" },
@@ -241,17 +289,38 @@ export default function Configuracoes() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Clique para fazer upload da logo ou arraste e solte
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Formatos: PNG, JPG, SVG • Tamanho máximo: 2MB • Recomendado: 300x300px
-                  </p>
-                  <Button variant="outline" className="mt-4">
-                    Selecionar Arquivo
-                  </Button>
+                <div className="space-y-4">
+                  {localSettings.logo_url && (
+                    <div className="flex items-center justify-center p-4 border rounded-lg">
+                      <img 
+                        src={localSettings.logo_url} 
+                        alt="Logo atual" 
+                        className="max-h-32 max-w-32 object-contain"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+                    <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Clique para fazer upload da logo ou arraste e solte
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Formatos: PNG, JPG, SVG • Tamanho máximo: 2MB • Recomendado: 300x300px
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                      id="logo-upload"
+                    />
+                    <label htmlFor="logo-upload">
+                      <Button variant="outline" className="cursor-pointer" asChild>
+                        <span>Selecionar Arquivo</span>
+                      </Button>
+                    </label>
+                  </div>
                 </div>
               </CardContent>
             </Card>

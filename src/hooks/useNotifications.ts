@@ -23,11 +23,14 @@ export function useNotifications() {
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
+        .eq("is_read", false) // Only fetch unread notifications
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as Notification[];
     },
+    staleTime: 30000, // Consider data stale after 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 }
 
@@ -99,10 +102,7 @@ export function useDeleteNotification() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast({
-        title: "Notificação excluída",
-        description: "A notificação foi excluída com sucesso!"
-      });
+      // Removed toast notification to avoid spam when deleting notifications
     },
     onError: (error) => {
       console.error("Error deleting notification:", error);

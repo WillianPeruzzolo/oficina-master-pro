@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppointmentForm } from "@/components/forms/AppointmentForm";
 
 export default function Agenda() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -32,10 +33,7 @@ export default function Agenda() {
             Gerencie agendamentos e horários de serviço
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:opacity-90">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Agendamento
-        </Button>
+        <AppointmentForm />
       </div>
 
       {/* Quick Stats */}
