@@ -18,6 +18,7 @@ export interface ExportData {
 
 export function exportToExcel(exportData: ExportData) {
   try {
+    console.log('[ExportUtils] Iniciando exportação Excel:', exportData.filename);
     const { title, headers, data, filename } = exportData;
     
     // Create a new workbook
@@ -35,16 +36,17 @@ export function exportToExcel(exportData: ExportData) {
     // Generate file and download
     XLSX.writeFile(workbook, `${filename}.xlsx`);
     
-    console.log(`Excel file exported: ${filename}.xlsx`);
+    console.log(`[ExportUtils] Excel exportado com sucesso: ${filename}.xlsx`);
     return true;
   } catch (error) {
-    console.error("Error exporting to Excel:", error);
+    console.error("[ExportUtils] Erro na exportação Excel:", error);
     throw new Error("Falha ao exportar para Excel");
   }
 }
 
 export function exportToPDF(exportData: ExportData) {
   try {
+    console.log('[ExportUtils] Iniciando exportação PDF:', exportData.filename);
     const { title, headers, data, filename } = exportData;
     
     // Create new PDF document
@@ -81,16 +83,17 @@ export function exportToPDF(exportData: ExportData) {
     // Save the PDF
     doc.save(`${filename}.pdf`);
     
-    console.log(`PDF file exported: ${filename}.pdf`);
+    console.log(`[ExportUtils] PDF exportado com sucesso: ${filename}.pdf`);
     return true;
   } catch (error) {
-    console.error("Error exporting to PDF:", error);
+    console.error("[ExportUtils] Erro na exportação PDF:", error);
     throw new Error("Falha ao exportar para PDF");
   }
 }
 
 export function exportToCSV(exportData: ExportData) {
   try {
+    console.log('[ExportUtils] Iniciando exportação CSV:', exportData.filename);
     const { headers, data, filename } = exportData;
     
     // Combine headers and data
@@ -120,10 +123,10 @@ export function exportToCSV(exportData: ExportData) {
     link.click();
     document.body.removeChild(link);
     
-    console.log(`CSV file exported: ${filename}.csv`);
+    console.log(`[ExportUtils] CSV exportado com sucesso: ${filename}.csv`);
     return true;
   } catch (error) {
-    console.error("Error exporting to CSV:", error);
+    console.error("[ExportUtils] Erro na exportação CSV:", error);
     throw new Error("Falha ao exportar para CSV");
   }
 }

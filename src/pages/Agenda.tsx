@@ -1,13 +1,38 @@
 import { useState } from "react";
-import { Calendar, Plus, Clock, User, Car } from "lucide-react";
+import { Calendar, Plus, Clock, User, Car, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useAppointments, useUpdateAppointment, useDeleteAppointment } from "@/hooks/useAppointments";
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Agenda() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const { data: appointments, isLoading } = useAppointments();
+  const updateAppointment = useUpdateAppointment();
+  const deleteAppointment = useDeleteAppointment();
+  const { toast } = useToast();
+  
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    try {
+      await updateAppointment.mutateAsync({ id: appointmentId, status: newStatus as any });
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+    }
+  };
+
+  const handleDeleteAppointment = async (appointmentId: string) => {
+    if (confirm('Tem certeza que deseja excluir este agendamento?')) {
+      try {
+        await deleteAppointment.mutateAsync(appointmentId);
+      } catch (error) {
+        console.error('Erro ao excluir agendamento:', error);
+      }
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -214,17 +239,35 @@ export default function Agenda() {
                         Ver Detalhes
                       </Button>
                       {appointment.status === "agendado" && (
-                        <Button size="sm" className="bg-workshop-warning hover:bg-workshop-warning/90">
+                        <Button 
+                          size="sm" 
+                          className="bg-workshop-warning hover:bg-workshop-warning/90"
+                          onClick={() => handleStatusChange(appointment.id.toString(), "em_andamento")}
+                        >
                           Iniciar
                         </Button>
                       )}
                       {appointment.status === "em_andamento" && (
-                        <Button size="sm" className="bg-workshop-success hover:bg-workshop-success/90">
+                        <Button 
+                          size="sm" 
+                          className="bg-workshop-success hover:bg-workshop-success/90"
+                          onClick={() => handleStatusChange(appointment.id.toString(), "concluido")}
+                        >
                           Finalizar
                         </Button>
                       )}
                       <Button size="sm" variant="ghost">
+                        <Edit className="h-4 w-4 mr-1" />
                         Editar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteAppointment(appointment.id.toString())}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Excluir
                       </Button>
                     </div>
                   </div>

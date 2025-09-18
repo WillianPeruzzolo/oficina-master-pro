@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { LogViewer } from "@/components/debug/LogViewer";
 
 export default function Configuracoes() {
   const { settings, loading, saveSettings } = useWorkshopSettings();
@@ -39,10 +40,65 @@ export default function Configuracoes() {
   }, [settings]);
 
   const handleSave = async () => {
-    const success = await saveSettings(localSettings);
-    if (success) {
-      // Settings saved successfully
+    try {
+      console.log('[Configuracoes] Salvando configurações:', localSettings);
+      const success = await saveSettings(localSettings);
+      if (success) {
+        // Aplicar tema se mudou
+        if (localSettings.theme !== settings.theme) {
+          document.documentElement.setAttribute('data-theme', localSettings.theme);
+        }
+        
+        // Aplicar cores customizadas
+        if (localSettings.primary_color || localSettings.secondary_color) {
+          const root = document.documentElement;
+          if (localSettings.primary_color) {
+            const hsl = hexToHsl(localSettings.primary_color);
+            root.style.setProperty('--primary', hsl);
+          }
+          if (localSettings.secondary_color) {
+            const hsl = hexToHsl(localSettings.secondary_color);
+            root.style.setProperty('--secondary', hsl);
+          }
+        }
+
+        toast({
+          title: "Configurações salvas",
+          description: "Todas as alterações foram aplicadas com sucesso!",
+        });
+      }
+    } catch (error) {
+      console.error('[Configuracoes] Erro ao salvar:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as configurações.",
+        variant: "destructive"
+      });
     }
+  };
+
+  // Converter hex para HSL
+  const hexToHsl = (hex: string): string => {
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+
+    return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
   };
 
   const handlePasswordChange = async () => {
@@ -125,6 +181,8 @@ export default function Configuracoes() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('[Configuracoes] Iniciando upload de logo:', file.name, file.size);
+
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "Erro",
@@ -138,32 +196,48 @@ export default function Configuracoes() {
       const fileExt = file.name.split('.').pop();
       const fileName = `logo-${Date.now()}.${fileExt}`;
       
+      console.log('[Configuracoes] Fazendo upload para Supabase Storage...');
       const { data, error } = await supabase.storage
         .from('workshop-logos')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (error) {
+        console.error('[Configuracoes] Erro no upload:', error);
         throw error;
       }
+
+      console.log('[Configuracoes] Upload concluído:', data);
 
       const { data: { publicUrl } } = supabase.storage
         .from('workshop-logos')
         .getPublicUrl(fileName);
+
+      console.log('[Configuracoes] URL pública gerada:', publicUrl);
 
       setLocalSettings({
         ...localSettings,
         logo_url: publicUrl
       });
 
-      toast({
-        title: "Sucesso",
-        description: "Logo enviada com sucesso!"
-      });
+      // Salvar automaticamente após upload
+      const updatedSettings = { ...localSettings, logo_url: publicUrl };
+      const success = await saveSettings(updatedSettings);
+      
+      if (success) {
+        toast({
+          title: "Sucesso",
+          description: "Logo enviada e salva com sucesso!"
+        });
+      }
 
     } catch (error) {
+      console.error('[Configuracoes] Erro no upload da logo:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível fazer upload da logo.",
+        description: "Não foi possível fazer upload da logo. Verifique a conexão.",
         variant: "destructive"
       });
     }
@@ -198,12 +272,13 @@ export default function Configuracoes() {
       </div>
 
       <Tabs defaultValue="oficina" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="oficina">Oficina</TabsTrigger>
           <TabsTrigger value="aparencia">Aparência</TabsTrigger>
           <TabsTrigger value="campos">Campos</TabsTrigger>
           <TabsTrigger value="sistema">Sistema</TabsTrigger>
           <TabsTrigger value="seguranca">Segurança</TabsTrigger>
+          <TabsTrigger value="debug">Debug</TabsTrigger>
         </TabsList>
 
         {/* Workshop Settings */}
@@ -696,6 +771,17 @@ export default function Configuracoes() {
                   {isCreatingAdmin ? "Criando..." : "Criar Usuário Admin"}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* Debug */}
+        <TabsContent value="debug" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sistema de Debug</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LogViewer />
             </CardContent>
           </Card>
         </TabsContent>

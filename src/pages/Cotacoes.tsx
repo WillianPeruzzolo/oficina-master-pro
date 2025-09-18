@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import QuotationForm from "@/components/forms/QuotationForm";
 
@@ -12,13 +13,66 @@ export default function Cotacoes() {
   const [search, setSearch] = useState("");
   const { toast } = useToast();
 
-  const handleExport = () => {
-    toast({
-      title: "Exportação iniciada",
-      description: "Relatório de cotações será baixado em breve."
-    });
-    // TODO: Implement actual export functionality
-    console.log("Exporting quotations report");
+  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
+    try {
+      // Dados mockados para demonstração
+      const quotationsData = [
+        {
+          id: "COT-001",
+          client: "João Silva",
+          vehicle: "Honda Civic 2020",
+          service: "Troca de Óleo + Filtros",
+          value: 280.00,
+          date: "09/01/2025",
+          status: "pendente",
+          supplier: "Auto Center ABC"
+        },
+        {
+          id: "COT-002",
+          client: "Maria Santos",
+          vehicle: "Toyota Corolla 2019",
+          service: "Revisão dos 30.000km",
+          value: 850.00,
+          date: "08/01/2025",
+          status: "aprovada",
+          supplier: "Oficina do José"
+        }
+      ];
+
+      const exportData = {
+        title: 'Relatório de Cotações',
+        headers: ['ID', 'Cliente', 'Veículo', 'Serviço', 'Valor', 'Data', 'Status', 'Fornecedor'],
+        data: quotationsData.map(item => [
+          item.id,
+          item.client,
+          item.vehicle,
+          item.service,
+          `R$ ${item.value.toFixed(2)}`,
+          item.date,
+          item.status,
+          item.supplier
+        ]),
+        filename: `cotacoes_${new Date().toISOString().slice(0,10)}`,
+      };
+
+      const { exportToExcel, exportToPDF, exportToCSV } = await import("@/utils/exportUtils");
+
+      if (format === 'pdf') await exportToPDF(exportData);
+      if (format === 'excel') await exportToExcel(exportData);
+      if (format === 'csv') await exportToCSV(exportData);
+
+      toast({
+        title: "Exportação concluída",
+        description: `Arquivo ${format.toUpperCase()} gerado com sucesso.`,
+      });
+    } catch (error) {
+      console.error('Erro na exportação:', error);
+      toast({
+        title: "Falha na exportação",
+        description: "Não foi possível gerar o arquivo. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -50,10 +104,19 @@ export default function Cotacoes() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => handleExport('pdf')}>Exportar como PDF</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExport('excel')}>Exportar como Excel (.xlsx)</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleExport('csv')}>Exportar como CSV</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <QuotationForm />
         </div>
       </div>
