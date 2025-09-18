@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Phone, Mail, MapPin } from "lucide-react";
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from "@/hooks/useClients";
+import { MaskedInput } from "@/components/ui/masked-input";
+import { AddressForm } from "@/components/forms/AddressForm";
+import { formatters, masks } from "@/utils/masks";
 import {
   Dialog,
   DialogContent,
@@ -150,10 +153,12 @@ export default function Clientes() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone</Label>
-                  <Input
+                  <MaskedInput
                     id="phone"
+                    mask="phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onValueChange={(value) => setFormData({ ...formData, phone: value })}
+                    placeholder="(11) 99999-9999"
                   />
                 </div>
               </div>

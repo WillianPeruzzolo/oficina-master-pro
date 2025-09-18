@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { useCreateVehicle, useUpdateVehicle, type Vehicle } from "@/hooks/useVehicles";
 import { useClients } from "@/hooks/useClients";
 
@@ -157,14 +158,19 @@ export default function VehicleForm({ vehicle, onSuccess, trigger }: VehicleForm
                 )}
               />
 
-              <FormField
+               <FormField
                 control={form.control}
                 name="license_plate"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Placa</FormLabel>
                     <FormControl>
-                      <Input placeholder="ABC-1234" {...field} />
+                      <MaskedInput 
+                        mask="licensePlate" 
+                        placeholder="ABC-1234" 
+                        {...field} 
+                        onValueChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

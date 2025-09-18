@@ -53,6 +53,8 @@ export default function Cotacoes() {
           item.supplier
         ]),
         filename: `cotacoes_${new Date().toISOString().slice(0,10)}`,
+        logoUrl: undefined, // Será adicionado quando o contexto for integrado
+        workshopName: 'Workshop Pro',
       };
 
       const { exportToExcel, exportToPDF, exportToCSV } = await import("@/utils/exportUtils");

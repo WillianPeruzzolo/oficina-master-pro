@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { UserMenu } from "./UserMenu";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { Card, CardContent } from "@/components/ui/card";
+import { useWorkshopSettingsContext } from "@/contexts/WorkshopSettingsContext";
 import {
   Popover,
   PopoverContent,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/popover";
 
 export function Header() {
+  const { settings } = useWorkshopSettingsContext();
   const [notifications, setNotifications] = useState([
     { id: 1, title: "Estoque baixo", message: "Filtro de óleo está acabando", time: "2h atrás" },
     { id: 2, title: "OS vencida", message: "OS-001 precisa de atenção", time: "4h atrás" },
@@ -28,8 +30,21 @@ export function Header() {
 
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
-      {/* Search */}
+      {/* Logo and Search */}
       <div className="flex items-center gap-4 flex-1 max-w-md">
+        {/* Logo */}
+        {settings.logo_url && (
+          <div className="flex items-center gap-3">
+            <img 
+              src={settings.logo_url} 
+              alt={settings.workshop_name}
+              className="h-8 w-8 object-contain rounded"
+            />
+            <span className="font-semibold text-foreground hidden sm:block">
+              {settings.workshop_name}
+            </span>
+          </div>
+        )}
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input

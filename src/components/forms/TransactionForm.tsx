@@ -8,6 +8,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MaskedInput } from "@/components/ui/masked-input";
+import { formatters } from "@/utils/masks";
 import { useToast } from "@/hooks/use-toast";
 
 const transactionSchema = z.object({

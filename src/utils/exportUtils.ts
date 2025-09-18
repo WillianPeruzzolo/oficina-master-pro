@@ -14,6 +14,8 @@ export interface ExportData {
   headers: string[];
   data: any[][];
   filename: string;
+  logoUrl?: string;
+  workshopName?: string;
 }
 
 export function exportToExcel(exportData: ExportData) {
@@ -47,38 +49,88 @@ export function exportToExcel(exportData: ExportData) {
 export function exportToPDF(exportData: ExportData) {
   try {
     console.log('[ExportUtils] Iniciando exportação PDF:', exportData.filename);
-    const { title, headers, data, filename } = exportData;
+    const { title, headers, data, filename, logoUrl, workshopName } = exportData;
     
     // Create new PDF document
     const doc = new jsPDF();
+    let currentY = 20;
     
-    // Add title
-    doc.setFontSize(16);
-    doc.text(title, 20, 20);
+    // Add logo if available
+    if (logoUrl) {
+      try {
+        // For now, just add workshop name in header
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(workshopName || 'Workshop', 20, currentY);
+        currentY += 10;
+      } catch (error) {
+        console.warn('[ExportUtils] Erro ao processar logo:', error);
+      }
+    }
     
-    // Add current date
+    // Add title with modern styling
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(44, 62, 80); // Dark blue-gray
+    doc.text(title, 20, currentY);
+    currentY += 15;
+    
+    // Add horizontal line
+    doc.setDrawColor(189, 195, 199);
+    doc.setLineWidth(0.5);
+    doc.line(20, currentY, 190, currentY);
+    currentY += 10;
+    
+    // Add current date with modern styling
     doc.setFontSize(10);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 20, 30);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(127, 140, 141);
+    doc.text(`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })}`, 20, currentY);
+    currentY += 15;
     
-    // Add table
+    // Modern table styling
     doc.autoTable({
       head: [headers],
       body: data,
-      startY: 40,
-      theme: 'grid',
+      startY: currentY,
+      theme: 'striped',
       styles: {
-        fontSize: 8,
-        cellPadding: 2,
+        fontSize: 9,
+        cellPadding: 4,
+        font: 'helvetica',
       },
       headStyles: {
-        fillColor: [33, 150, 243], // Blue color
+        fillColor: [52, 73, 94],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
+        fontSize: 10,
+      },
+      alternateRowStyles: {
+        fillColor: [248, 249, 250],
       },
       columnStyles: {
         0: { cellWidth: 'auto' },
       },
+      margin: { top: 20, left: 20, right: 20 },
     });
+    
+    // Add footer
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(127, 140, 141);
+      doc.text(
+        `Página ${i} de ${pageCount} - ${workshopName || 'Workshop Pro'}`,
+        20,
+        doc.internal.pageSize.height - 10
+      );
+    }
     
     // Save the PDF
     doc.save(`${filename}.pdf`);

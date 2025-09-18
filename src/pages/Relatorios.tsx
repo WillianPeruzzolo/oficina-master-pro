@@ -6,8 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { exportToExcel, exportToPDF, exportToCSV } from "@/utils/exportUtils";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkshopSettingsContext } from "@/contexts/WorkshopSettingsContext";
 export default function Relatorios() {
   const { toast } = useToast();
+  const { settings } = useWorkshopSettingsContext();
 
   // Data sources used in UI and export
   const revenueByPeriod = [
@@ -35,6 +37,8 @@ export default function Relatorios() {
         `${item.growth > 0 ? '+' : ''}${item.growth}%`,
       ]),
       filename: `relatorio-financeiro_${new Date().toISOString().slice(0,10)}`,
+      logoUrl: settings.logo_url,
+      workshopName: settings.workshop_name,
     };
 
     try {
