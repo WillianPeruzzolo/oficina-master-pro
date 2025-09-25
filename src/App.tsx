@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "./components/layout/Layout";
@@ -27,28 +27,26 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<Dashboard />} />
-              <Route path="clientes" element={<Clientes />} />
-              <Route path="veiculos" element={<Veiculos />} />
-              <Route path="os" element={<OrdemServico />} />
-              <Route path="estoque" element={<Estoque />} />
-              <Route path="financeiro" element={<Financeiro />} />
-              <Route path="cotacoes" element={<Cotacoes />} />
-              <Route path="agenda" element={<Agenda />} />
-              <Route path="relatorios" element={<Relatorios />} />
-              <Route path="configuracoes" element={<Configuracoes />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="clientes" element={<Clientes />} />
+            <Route path="veiculos" element={<Veiculos />} />
+            <Route path="os" element={<OrdemServico />} />
+            <Route path="estoque" element={<Estoque />} />
+            <Route path="financeiro" element={<Financeiro />} />
+            <Route path="cotacoes" element={<Cotacoes />} />
+            <Route path="agenda" element={<Agenda />} />
+            <Route path="relatorios" element={<Relatorios />} />
+            <Route path="configuracoes" element={<Configuracoes />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
