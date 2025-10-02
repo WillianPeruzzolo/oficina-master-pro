@@ -1,13 +1,6 @@
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
-
-// Extend jsPDF type to include autoTable
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
+import autoTable from "jspdf-autotable";
 
 export interface ExportData {
   title: string;
@@ -94,7 +87,7 @@ export function exportToPDF(exportData: ExportData) {
     currentY += 15;
     
     // Modern table styling
-    doc.autoTable({
+    autoTable(doc, {
       head: [headers],
       body: data,
       startY: currentY,

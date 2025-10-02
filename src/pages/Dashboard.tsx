@@ -3,7 +3,6 @@ import {
   Users, 
   ClipboardList, 
   DollarSign, 
-  TrendingUp, 
   Calendar,
   Package,
   AlertTriangle
@@ -12,8 +11,19 @@ import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentOrders } from "@/components/dashboard/RecentOrders";
 import { StockAlerts } from "@/components/dashboard/StockAlerts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
+  const { data: stats, isLoading } = useDashboardStats();
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Welcome Section */}
@@ -26,38 +36,48 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="OS em Andamento"
-          value={12}
-          change="+3 hoje"
-          changeType="positive"
-          icon={<ClipboardList className="h-6 w-6" />}
-          gradient="bg-gradient-primary"
-        />
-        <StatsCard
-          title="Faturamento Mensal"
-          value="R$ 45.300"
-          change="+12.5% vs mês anterior"
-          changeType="positive"
-          icon={<DollarSign className="h-6 w-6" />}
-          gradient="bg-gradient-orange"
-        />
-        <StatsCard
-          title="Clientes Ativos"
-          value={89}
-          change="+5 esta semana"
-          changeType="positive"
-          icon={<Users className="h-6 w-6" />}
-          gradient="bg-workshop-success"
-        />
-        <StatsCard
-          title="Agendamentos Hoje"
-          value={7}
-          change="2 concluídos"
-          changeType="neutral"
-          icon={<Calendar className="h-6 w-6" />}
-          gradient="bg-workshop-steel"
-        />
+        {isLoading ? (
+          <>
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </>
+        ) : (
+          <>
+            <StatsCard
+              title="OS em Andamento"
+              value={stats?.ordersInProgress || 0}
+              change="Em andamento"
+              changeType="neutral"
+              icon={<ClipboardList className="h-6 w-6" />}
+              gradient="bg-gradient-primary"
+            />
+            <StatsCard
+              title="Faturamento Mensal"
+              value={formatCurrency(stats?.monthlyRevenue || 0)}
+              change={`${stats?.revenueGrowth >= 0 ? '+' : ''}${stats?.revenueGrowth.toFixed(1)}% vs mês anterior`}
+              changeType={stats?.revenueGrowth >= 0 ? "positive" : "negative"}
+              icon={<DollarSign className="h-6 w-6" />}
+              gradient="bg-gradient-orange"
+            />
+            <StatsCard
+              title="Clientes Ativos"
+              value={stats?.activeClients || 0}
+              change={`${stats?.clientsGrowth >= 0 ? '+' : ''}${stats?.clientsGrowth.toFixed(1)}% este mês`}
+              changeType={stats?.clientsGrowth >= 0 ? "positive" : "neutral"}
+              icon={<Users className="h-6 w-6" />}
+              gradient="bg-workshop-success"
+            />
+            <StatsCard
+              title="Agendamentos Hoje"
+              value={stats?.todayAppointments || 0}
+              change="Agendados para hoje"
+              changeType="neutral"
+              icon={<Calendar className="h-6 w-6" />}
+              gradient="bg-workshop-steel"
+            />
+          </>
+        )}
       </div>
 
       {/* Main Content Grid */}
@@ -149,15 +169,15 @@ export default function Dashboard() {
           <CardContent className="space-y-3">
             <div className="p-3 bg-workshop-warning/10 border border-workshop-warning/20 rounded-lg">
               <p className="text-sm font-medium">Estoque Baixo</p>
-              <p className="text-xs text-muted-foreground">4 itens abaixo do mínimo</p>
+              <p className="text-xs text-muted-foreground">Verifique alertas de estoque</p>
             </div>
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm font-medium">OS Atrasadas</p>
-              <p className="text-xs text-muted-foreground">2 ordens com prazo vencido</p>
+              <p className="text-xs text-muted-foreground">Verifique ordens pendentes</p>
             </div>
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm font-medium">Pagamentos</p>
-              <p className="text-xs text-muted-foreground">R$ 2.300 a receber hoje</p>
+              <p className="text-xs text-muted-foreground">Verifique financeiro</p>
             </div>
           </CardContent>
         </Card>

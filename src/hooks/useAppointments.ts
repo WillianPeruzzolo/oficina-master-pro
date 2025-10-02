@@ -32,11 +32,11 @@ export interface Appointment {
   };
 }
 
-export function useAppointments() {
+export function useAppointments(date?: string) {
   return useQuery({
-    queryKey: ["appointments"],
+    queryKey: ["appointments", date],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("appointments")
         .select(`
           *,
@@ -47,6 +47,13 @@ export function useAppointments() {
         .order("appointment_date", { ascending: true })
         .order("start_time", { ascending: true });
 
+      // Filter by date if provided
+      if (date) {
+        query = query.eq("appointment_date", date);
+      }
+
+      const { data, error } = await query;
+      
       if (error) throw error;
       return data as Appointment[];
     },

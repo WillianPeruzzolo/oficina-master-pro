@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Agenda() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { data: appointments, isLoading } = useAppointments();
+  const formattedDate = selectedDate.toISOString().split('T')[0];
+  const { data: appointments, isLoading } = useAppointments(formattedDate);
   const updateAppointment = useUpdateAppointment();
   const deleteAppointment = useDeleteAppointment();
   const { toast } = useToast();

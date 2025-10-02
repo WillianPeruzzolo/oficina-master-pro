@@ -102,7 +102,6 @@ export function useWorkshopSettings() {
         return false;
       }
 
-      setSettings(newSettings);
       toast({
         title: "Configurações salvas",
         description: "As configurações foram salvas com sucesso!"
